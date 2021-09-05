@@ -3,19 +3,37 @@
 #include <vector>
 #include <fstream>
 #include <sstream>
+#include <bitset>
 using namespace std;
 
-const int TAMANHO_MEMORIA = 64;
+class Endereco
+{
+public:
+    int decimal;
+    string binario;
+    string tag;
+    string indice;
+    string offset;
+    Endereco() {}
+    Endereco(int decimal)
+    {
+        this->binario = bitset<32>(decimal).to_string();
+        this->indice = binario.substr(22, 6);
+        this->offset = binario.substr(28, 4);
+        this->tag = binario.substr(0, 22);
+        this->decimal = decimal;
+    }
+};
 
 class Entrada
 {
 public:
-    int endereco;
+    Endereco endereco;
     int tipoOperacao;
     string dado;
     Entrada(int endereco, int tipoOperacao, string dado)
     {
-        this->endereco = endereco;
+        this->endereco = Endereco(endereco);
         this->tipoOperacao = tipoOperacao;
         this->dado = dado;
     }
@@ -58,7 +76,7 @@ public:
 class Memoria
 {
 public:
-    string dados[64];
+    vector<Endereco> enderecos;
     Operacoes operacoes;
     vector<Saida> saidas;
     Memoria()
@@ -67,51 +85,49 @@ public:
     }
     void addEntrada(Entrada entrada)
     {
-        int posicao = entrada.endereco % TAMANHO_MEMORIA;
-        string dadoAtual = dados[posicao];
-        string resultado = this->realizaOperacao(entrada.tipoOperacao, posicao, dadoAtual, entrada.dado);
+        string resultado = this->realizaOperacao(entrada.tipoOperacao, entrada.endereco);
         this->geraSaida(entrada, resultado);
     }
 
 private:
-    string realizaOperacao(int tipoOperacao, int posicaoMemoria, string dadoAtual, string novoDado)
+    string realizaOperacao(int tipoOperacao, Endereco endereco)
     {
         string resultado = "";
         if (tipoOperacao == 1)
         {
+            enderecos.push_back(endereco);
             resultado = "W";
             operacoes.writes += 1;
-            writeDado(posicaoMemoria, novoDado);
         }
 
         else
         {
             operacoes.reads += 1;
-            resultado = readDado(dadoAtual);
+            resultado = readDado(endereco);
         }
 
         return resultado;
     }
-    void writeDado(int posicaoMemoria, string novoDado)
+    string readDado(Endereco novoEndereco)
     {
-        dados[posicaoMemoria] = novoDado;
-    }
-    string readDado(string dadoAtual)
-    {
-        if (dadoAtual.empty())
+        int enderecosSize = enderecos.size();
+        for (int i = 0; i < enderecosSize; i++)
         {
-            operacoes.misses += 1;
-            return "M";
+            Endereco it = enderecos.at(i);
+            if (it.tag == novoEndereco.tag && it.indice == novoEndereco.indice)
+            {
+                operacoes.hits += 1;
+                return "H";
+            }
         }
-        else
-        {
-            operacoes.hits += 1;
-            return "H";
-        }
+
+        operacoes.misses += 1;
+        enderecos.push_back(novoEndereco);
+        return "M";
     }
     void geraSaida(Entrada entrada, string resultado)
     {
-        saidas.push_back(Saida(entrada.endereco, entrada.tipoOperacao, entrada.dado, resultado));
+        saidas.push_back(Saida(entrada.endereco.decimal, entrada.tipoOperacao, entrada.dado, resultado));
     }
 };
 
@@ -137,6 +153,7 @@ int main(int argc, char **argv)
         {
             iss >> dado;
         }
+
         Entrada entrada = Entrada(endereco, tipoOperacao, dado);
         memoria.addEntrada(entrada);
     }
@@ -148,15 +165,16 @@ int main(int argc, char **argv)
     outfile << "WRITES: " << operacoes.writes << "\n";
     outfile << "HITS: " << operacoes.hits << "\n";
     outfile << "MISSES: " << operacoes.misses << "\n";
-    outfile << "HIT RATE: " << operacoes.calculateHitRate() << "\n";
-    outfile << "MISS RATE: " << operacoes.calculateMissRate() << "\n\n";
-    for (int i = 0; i < saidas.size(); i++)
+    outfile << "HIT RATE: " << setprecision(3) << operacoes.calculateHitRate() << "\n";
+    outfile << "MISS RATE: " << setprecision(3) << operacoes.calculateMissRate() << endl << endl;
+    int saidasSize = saidas.size();
+    for (int i = 0; i < saidasSize; i++)
     {
-        outfile << saidas[i].endereco << " " << saidas[i].tipoOperacao << " " << saidas[i].dado << " " << saidas[i].resultado << endl;
+        outfile << saidas[i].endereco << " " << saidas[i].tipoOperacao << ((saidas[i].dado.empty()) ? "" : " " + saidas[i].dado) << " " << saidas[i].resultado << endl;
     }
 
     outfile.close();
-    infile.close();   
+    infile.close();
 
     return 1;
 }

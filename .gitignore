@@ -31,5 +31,6 @@
 *.app
 tp03
 *.testresult
-result.txt
+result.*
 arquivo.txt
+
