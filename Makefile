@@ -6,7 +6,7 @@ $(EXEC): main.cpp
 	$(CC) $(CFLAGS) main.cpp -o $(EXEC)
 
 test: $(EXEC)
-	@bash run_tests.sh $(EXEC)
+	@bash extensao.sh $(EXEC)
 	
 clean:
 	rm -rf tp04
