@@ -70,7 +70,6 @@ public:
         int posicao = entrada.endereco % TAMANHO_MEMORIA;
         string dadoAtual = dados[posicao];
         string resultado = this->realizaOperacao(entrada.tipoOperacao, posicao, dadoAtual, entrada.dado);
-        cout << "O resultado da operacao e: " << resultado << "\n\n";
         this->geraSaida(entrada, resultado);
     }
 
@@ -121,6 +120,7 @@ int main()
     int endereco, tipoOperacao;
     Memoria memoria = Memoria();
     ifstream infile("arquivo.txt");
+    ofstream outfile;
     string line;
     while (getline(infile, line))
     {
@@ -138,17 +138,22 @@ int main()
         memoria.addEntrada(entrada);
     }
 
+    outfile.open ("result.txt");
     vector<Saida> saidas = memoria.saidas;
     Operacoes operacoes = memoria.operacoes;
-    cout << "READS: " << operacoes.reads << "\n";
-    cout << "WRITES: " << operacoes.writes << "\n";
-    cout << "HITS: " << operacoes.hits << "\n";
-    cout << "MISSES: " << operacoes.misses << "\n";
-    cout << "HIT RATE: " << operacoes.calculateHitRate() << "\n";
-    cout << "MISS RATE: " << operacoes.calculateMissRate() << "\n";
+    outfile << "READS: " << operacoes.reads << "\n";
+    outfile << "WRITES: " << operacoes.writes << "\n";
+    outfile << "HITS: " << operacoes.hits << "\n";
+    outfile << "MISSES: " << operacoes.misses << "\n";
+    outfile << "HIT RATE: " << operacoes.calculateHitRate() << "\n";
+    outfile << "MISS RATE: " << operacoes.calculateMissRate() << "\n\n";
     for (int i = 0; i < saidas.size(); i++)
     {
-        cout << saidas[i].endereco << " " << saidas[i].tipoOperacao << " " << saidas[i].dado << " " << saidas[i].resultado << "\n";
+        outfile << saidas[i].endereco << " " << saidas[i].tipoOperacao << " " << saidas[i].dado << " " << saidas[i].resultado << endl;
     }
+
+    outfile.close();
+    infile.close();   
+
     system("pause");
 }
