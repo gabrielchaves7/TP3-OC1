@@ -40,10 +40,10 @@ public:
 class Operacoes
 {
 public:
-    int reads = 0;
-    int writes = 0;
-    int hits = 0;
-    int misses = 0;
+    double reads = 0;
+    double writes = 0;
+    double hits = 0;
+    double misses = 0;
     Operacoes() {}
     double calculateMissRate()
     {
@@ -70,6 +70,7 @@ public:
         int posicao = entrada.endereco % TAMANHO_MEMORIA;
         string dadoAtual = dados[posicao];
         string resultado = this->realizaOperacao(entrada.tipoOperacao, posicao, dadoAtual, entrada.dado);
+        cout << "O resultado da operacao e: " << resultado << "\n\n";
         this->geraSaida(entrada, resultado);
     }
 
@@ -87,7 +88,7 @@ private:
         else
         {
             operacoes.reads += 1;
-            resultado = readDado(dadoAtual, novoDado);
+            resultado = readDado(dadoAtual);
         }
 
         return resultado;
@@ -96,17 +97,17 @@ private:
     {
         dados[posicaoMemoria] = novoDado;
     }
-    string readDado(string dadoAtual, string novoDado)
+    string readDado(string dadoAtual)
     {
-        if (dadoAtual == novoDado)
-        {
-            operacoes.hits += 1;
-            return "H";
-        }
-        else
+        if (dadoAtual.empty())
         {
             operacoes.misses += 1;
             return "M";
+        }
+        else
+        {
+            operacoes.hits += 1;
+            return "H";
         }
     }
     void geraSaida(Entrada entrada, string resultado)
@@ -133,15 +134,21 @@ int main()
         {
             iss >> dado;
         }
-        cout << " " << endereco << " " << tipoOperacao << " " << dado;
         Entrada entrada = Entrada(endereco, tipoOperacao, dado);
         memoria.addEntrada(entrada);
     }
 
     vector<Saida> saidas = memoria.saidas;
+    Operacoes operacoes = memoria.operacoes;
+    cout << "READS: " << operacoes.reads << "\n";
+    cout << "WRITES: " << operacoes.writes << "\n";
+    cout << "HITS: " << operacoes.hits << "\n";
+    cout << "MISSES: " << operacoes.misses << "\n";
+    cout << "HIT RATE: " << operacoes.calculateHitRate() << "\n";
+    cout << "MISS RATE: " << operacoes.calculateMissRate() << "\n";
     for (int i = 0; i < saidas.size(); i++)
     {
-        cout << saidas[i].endereco << " " << saidas[i].tipoOperacao << " " << saidas[i].dado << " " << saidas[i].resultado << endl;
+        cout << saidas[i].endereco << " " << saidas[i].tipoOperacao << " " << saidas[i].dado << " " << saidas[i].resultado << "\n";
     }
     system("pause");
 }
