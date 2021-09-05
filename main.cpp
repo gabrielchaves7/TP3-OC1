@@ -115,11 +115,14 @@ private:
     }
 };
 
-int main()
+int main(int argc, char **argv)
 {
+    string input = argv[1];
+    string output = argv[2];
     int endereco, tipoOperacao;
+
     Memoria memoria = Memoria();
-    ifstream infile("arquivo.txt");
+    ifstream infile(input);
     ofstream outfile;
     string line;
     while (getline(infile, line))
@@ -138,7 +141,7 @@ int main()
         memoria.addEntrada(entrada);
     }
 
-    outfile.open ("result.txt");
+    outfile.open (output);
     vector<Saida> saidas = memoria.saidas;
     Operacoes operacoes = memoria.operacoes;
     outfile << "READS: " << operacoes.reads << "\n";
@@ -155,5 +158,5 @@ int main()
     outfile.close();
     infile.close();   
 
-    system("pause");
+    return 1;
 }
