@@ -1,6 +1,8 @@
 #include <iostream>
 #include <iomanip>
 #include <vector>
+#include <fstream>
+#include <sstream>
 using namespace std;
 
 const int TAMANHO_MEMORIA = 64;
@@ -116,15 +118,26 @@ private:
 int main()
 {
     int endereco, tipoOperacao;
-    string dado = "";
     Memoria memoria = Memoria();
+    ifstream infile("arquivo.txt");
+    string line;
+    while (getline(infile, line))
+    {
+        istringstream iss(line);
+        if (!(iss >> endereco >> tipoOperacao))
+        {
+            break;
+        }
+        string dado = "";
+        if (tipoOperacao == 1)
+        {
+            iss >> dado;
+        }
+        cout << " " << endereco << " " << tipoOperacao << " " << dado;
+        Entrada entrada = Entrada(endereco, tipoOperacao, dado);
+        memoria.addEntrada(entrada);
+    }
 
-    cin >> endereco >> tipoOperacao;
-    if (tipoOperacao == 1)
-        cin >> dado;
-
-    Entrada entrada = Entrada(endereco, tipoOperacao, dado);
-    memoria.addEntrada(entrada);
     vector<Saida> saidas = memoria.saidas;
     for (int i = 0; i < saidas.size(); i++)
     {
