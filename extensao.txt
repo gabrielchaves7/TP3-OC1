@@ -2,4 +2,7 @@ Gabriel Chaves Ferreira - 2018046700
 Samuel Fantini Braga - 2018046637
 
 
-Detalhes: Para rodar os testes, basta rodar o comando "make test" no diretório do projeto. Isso irá rodar todos os casos de testes disponibilizados no fórum da disciplina.
+Detalhes: 
+Rode o comando "make" para gerar o executável. 
+Depois para rodar os testes, basta rodar o comando "make test" no diretório do projeto. 
+Isso irá rodar todos os casos de testes disponibilizados no fórum da disciplina.
